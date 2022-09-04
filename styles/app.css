@@ -1,0 +1,52 @@
+[ng\:cloak],
+[ng-cloak],
+.ng-cloak {
+  display: none !important;
+}
+.popup {
+  height: 320px;
+  max-height: 320px !important;
+  width: 250px;
+  font-size: 13px;
+  text-align: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.popup p {
+  margin: 2px 0 8px;
+}
+.popup .md-button {
+  width: 165px;
+}
+.popup .in-button-spinner {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.gopherbuddy-icon {
+  height: 36px;
+  margin: 5px;
+}
+.help-popup {
+  text-align: center;
+  font-size: 16px;
+}
+.help-popup .gopherbuddy-icon {
+  height: 54px;
+  margin: 5px;
+}
+.help-popup p {
+  margin: 6px 0 16px;
+  line-height: 1.3em;
+}
+.help-popup a {
+  color: #37839c;
+  font-weight: bold;
+}
+.help-popup a:hover {
+  cursor: pointer;
+}

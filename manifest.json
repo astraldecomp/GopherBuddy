@@ -1,0 +1,73 @@
+{
+"update_url": "https://clients2.google.com/service/update2/crx",
+
+  "manifest_version": 2,
+  "name": "Gopher Buddy",
+  "short_name": "GB",
+  "description": "Installed by your Google Workspace for Education admin. Tracks IP, user, timestamp data for school managed devices and users only.",
+  "version": "0.9.8.8",
+  "icons": {
+    "32": "images/gopher-buddy_32x32_color.png",
+    "128": "images/gopher-buddy_128x128_color.png"
+  },
+
+  "background": {
+    "scripts": [
+      "vendor/jquery/dist/jquery.js",
+      "vendor/angular/angular.js",
+      "vendor/lodash/lodash.js",
+      "vendor/q/q.js",
+      "app.config.js",
+      "buildInfo.js",
+      "scripts/analytics.lib.js",
+      "scripts/sessions.lib.js",
+      "scripts/pubsub.lib.js",
+      "background.js",
+      "debug.js"
+    ]
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://gopher-buddy-prod.appspot.com/*"],
+      "js": ["scripts/content_script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "web_accessible_resources": [
+    "images/gopher-buddy_128x128_color.png",
+    "images/chrome_gopher_unhappy_128.png",
+    "images/check.png",
+    "images/clock.png"
+  ],
+
+  "browser_action": {
+    "default_popup": "templates/popup.html",
+    "default_icon": "images/gopher-buddy_128x128_color.png",
+    "default_title": "Gopher Buddy"
+  },
+
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "alarms",
+    "storage",
+    "notifications",
+    "*://gopher-buddy-dev.appspot.com/*",
+    "*://gopher-buddy-prod.appspot.com/*",
+    "idle",
+    "identity",
+    "identity.email",
+    "enterprise.deviceAttributes",
+    "browsingData"
+  ],
+
+  "oauth2": {
+    "client_id": "974563760330-o47cf80n1i95p1f56ovt2ghp3l64oerj.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/userinfo.profile",
+      "https://www.googleapis.com/auth/userinfo.email"
+    ]
+  }
+}

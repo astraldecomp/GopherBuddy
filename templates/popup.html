@@ -1,0 +1,135 @@
+<html ng-app="ait.chromeGopher" ng-csp>
+	<head>
+		<title>Gopher Buddy</title>
+    <link href="../vendor/angular-material/angular-material.css" rel="stylesheet">
+    <link href="../vendor/angular-material-icons/angular-material-icons.css" rel="stylesheet">
+    <link href="../styles/app.css" rel="stylesheet">
+	</head>
+
+	<body ng-controller="PopupCtrl as ctrl" class="popup" layout="column">
+
+    <md-content ng-if="!ctrl.vars.managedDevice || ctrl.vars.domain === 'gmail.com' || ctrl.disabled">
+
+      <div layout="row" layout-align="center center">
+        <img src="../images/gopher-buddy_disabled_128x128.png" class="gopherbuddy-icon">
+      </div>
+
+      <div class="md-padding" ng-if="(ctrl.vars.managedDevice && ctrl.disabled) || (!ctrl.vars.managedDevice && ctrl.vars.domain !== 'gmail.com')" ng-cloak>
+        <p>Gopher Buddy is an admin tool for managed Chromebooks on <strong>{{ctrl.vars.domain}}</strong>.</p>
+        <p ng-if="!ctrl.vars.managedDevice">It performs no actions on Chrome browsers.</p>
+        <p ng-if="ctrl.disabled">Gopher Buddy appears to be currently disabled. Please contact your administrator for assistance.</p>
+      </div>
+
+      <p ng-if="ctrl.vars.domain === 'gmail.com'">Gopher Buddy performs no actions on <strong>gmail.com</strong> accounts</p>
+
+    </md-content>
+
+		<md-content ng-if="ctrl.vars.managedDevice && !ctrl.disabled && !ctrl.vars.checkingDeviceInfoAccess" class="md-padding">
+
+      <div layout="row" layout-align="center center">
+        <img ng-if="ctrl.showHelp" src="../images/chrome_gopher_unhappy_128.png" class="gopherbuddy-icon">
+        <img ng-if="!ctrl.showHelp" src="../images/gopher-buddy_128x128_color.png" class="gopherbuddy-icon">
+      </div>
+
+      <div class="md-padding" ng-if="ctrl.error" ng-cloak>
+        Uh oh. There was a problem getting Gopher Buddy.
+      </div>
+
+      <div ng-cloak>
+
+        <div class="md-padding" layout="column" layout-align="center center" ng-if="ctrl.vars.showUnlicensed">
+          The license for Gopher Buddy has expired for {{ctrl.vars.domain}}.
+        </div>
+
+        <div ng-if="ctrl.vars.wait" layout-align="center center" class="md-padding">
+          Gopher Buddy will check your version soon!
+        </div>
+
+        <div class="md-padding">
+          <md-button class="md-raised" ng-click="ctrl.clearCache()" ng-disabled="ctrl.vars.clearingCache || ctrl.vars.cacheIsEmpty">
+            <span ng-if="!ctrl.vars.clearingCache && !ctrl.vars.cacheIsEmpty">
+              CLEAR CACHE
+            </span>
+            <span ng-if="ctrl.vars.cacheIsEmpty">
+              DONE
+            </span>
+            <span ng-if="ctrl.vars.cacheIsEmpty == false">
+              FAILED
+            </span>
+            <span ng-if="ctrl.vars.clearingCache" class="in-button-spinner">
+              <md-progress-circular md-mode="indeterminate" md-diameter="12"></md-progress-circular>
+            </span>
+          </md-button>
+        </div>
+
+        <div ng-if="!ctrl.showHelp && !ctrl.vars.wait" class="md-padding" layout="column" layout-align="center center">
+          <p>
+            Gopher Buddy says<br/>
+            Chrome is up to date!
+          </p>
+          <p>
+            Last checked<br/>
+            {{ctrl.vars.lastChecked.date}} {{ctrl.vars.lastChecked.time}}
+          </p>
+
+          <div layout="row" ng-if="ctrl.checkNow" layout-align="center end">
+            <md-button class="md-raised" ng-click="ctrl.checkNow()">
+              Check Again
+            </md-button>
+          </div>
+
+        </div>
+
+        <div ng-if="ctrl.showHelp" layout="column" layout-align="center center">
+
+          <p>
+            Chrome is out of date!<br/>
+            Current version: <strong ng-bind="ctrl.vars.deviceVersion"></strong><br/>
+            <span ng-if="!vars.domainSettings.restrictChromeOsVersionUpdates">Latest available: <strong class="strong" ng-bind="ctrl.vars.available"></strong></span>
+            <span ng-if="vars.domainSettings.restrictChromeOsVersionUpdates">Max available: <strong class="strong" ng-bind="ctrl.vars.available"></strong></span>
+          </p>
+
+          <md-button class="md-raised md-primary" ng-click="ctrl.showHelp()">
+            FIX IT
+          </md-button>
+
+        </div>
+
+        <div layout="row" layout-align="center end" ng-if="!ctrl.vars.checkingDeviceInfoAccess && ctrl.vars.showDeviceInfoButton">
+          <md-button class="md-raised" ng-click="ctrl.openDeviceDetails()">
+            SHOW DEVICE INFO
+          </md-button>
+        </div>
+
+
+
+      </div>
+
+		</md-content>
+
+    <md-content ng-if="ctrl.vars.checkingDeviceInfoAccess" class="md-padding">
+
+      <div layout="column" layout-align="center center">
+        <md-progress-circular md-mode="indeterminate" md-diameter="20"></md-progress-circular>
+        Loading...
+      </div>
+
+    </md-content>
+
+    <!--Load all required scripts-->
+    <script type="text/javascript" src="../vendor/angular/angular.js"></script>
+    <script type="text/javascript" src="../vendor/angular-animate/angular-animate.js"></script>
+    <script type="text/javascript" src="../vendor/angular-aria/angular-aria.js"></script>
+    <script type="text/javascript" src="../vendor/angular-material/angular-material.js"></script>
+    <script type="text/javascript" src="../vendor/angular-material-icons/angular-material-icons.min.js"></script>
+    <script type="text/javascript" src="../vendor/angular-messages/angular-messages.js"></script>
+    <script type="text/javascript" src="../vendor/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="../vendor/lodash/lodash.js"></script>
+    <script type="text/javascript" src="../scripts/app.js"></script>
+    <script type="text/javascript" src="../app.config.js"></script>
+    <script type="text/javascript" src="../scripts/analytics.lib.js"></script>
+    <script type="text/javascript" src="../scripts/popup.js"></script>
+    <script type="text/javascript" src="../buildInfo.js"></script>
+
+	</body>
+</html>

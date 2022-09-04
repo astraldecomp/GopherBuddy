@@ -1,0 +1,49 @@
+<html ng-app="ait.chromeGopher" ng-csp>
+<head>
+  <title>Gopher Buddy</title>
+  <link href="../vendor/angular-material/angular-material.css" rel="stylesheet">
+  <link href="../vendor/angular-material-icons/angular-material-icons.css" rel="stylesheet">
+  <link href="../styles/app.css" rel="stylesheet">
+</head>
+
+<body ng-controller="HelpPopupCtrl as ctrl" class="help-popup" layout="column">
+
+  <md-content class="md-padding">
+
+    <div layout="row" layout-align="center center">
+      <img src="../images/gopher-buddy_128x128_color.png" class="gopherbuddy-icon">
+    </div>
+
+    <div>
+
+      <p>
+        Please read the<br/>
+        <strong>About Chrome</strong><br/>
+        page carefully and follow<br/>
+        Google's instructions to<br/>
+        update Chrome
+      </p>
+
+      <a ng-click="ctrl.showRemoteHelp()">I need more help</a>
+
+    </div>
+
+  </md-content>
+
+  <!--Load all required scripts-->
+  <script type="text/javascript" src="../vendor/angular/angular.js"></script>
+  <script type="text/javascript" src="../vendor/angular-animate/angular-animate.js"></script>
+  <script type="text/javascript" src="../vendor/angular-aria/angular-aria.js"></script>
+  <script type="text/javascript" src="../vendor/angular-material/angular-material.js"></script>
+  <script type="text/javascript" src="../vendor/angular-material-icons/angular-material-icons.min.js"></script>
+  <script type="text/javascript" src="../vendor/angular-messages/angular-messages.js"></script>
+  <script type="text/javascript" src="../vendor/jquery/dist/jquery.js"></script>
+  <script type="text/javascript" src="../vendor/lodash/lodash.js"></script>
+  <script type="text/javascript" src="../scripts/app.js"></script>
+  <script type="text/javascript" src="../app.config.js"></script>
+  <script type="text/javascript" src="../scripts/analytics.lib.js"></script>
+  <script type="text/javascript" src="../scripts/HelpPopup.controller.js"></script>
+  <script type="text/javascript" src="../buildInfo.js"></script>
+
+</body>
+</html>
