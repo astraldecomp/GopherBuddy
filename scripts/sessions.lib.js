@@ -1,7 +1,7 @@
 /**
  * Created by James on 2017-05-05.
  */
-var SessionApp = (function() {
+var SessionApp = (function () {
   // TODO: Add analytics to sessions
   // Quotas: https://developer.chrome.com/extensions/storage
 
@@ -32,7 +32,6 @@ var SessionApp = (function() {
   //   return this;
   // };
 
-
   /**
    * @param {Object} params
    * @param {Number} params.timeStamp The timestamp from which to return the 'bookend'
@@ -41,9 +40,8 @@ var SessionApp = (function() {
    */
 
   function getChunkedTimeStamp(params) {
-
     _.defaults(params, {
-      which: 'floor'
+      which: "floor",
     });
 
     var windowSize = appConfig.checkRateInSeconds.activity * 1000;
@@ -52,14 +50,15 @@ var SessionApp = (function() {
     var rounded;
 
     switch (params.which) {
-
-      case 'ceil':
+      case "ceil":
         rounded = new Date(Math.ceil(date.getTime() / windowSize) * windowSize);
         break;
 
-      case 'floor':
+      case "floor":
       default:
-        rounded = new Date(Math.floor(date.getTime() / windowSize) * windowSize);
+        rounded = new Date(
+          Math.floor(date.getTime() / windowSize) * windowSize
+        );
         break;
     }
 
@@ -68,9 +67,7 @@ var SessionApp = (function() {
     }
 
     return rounded.getTime();
-
   }
-
 
   /**
    * Sets the local Session active and closed session variables and returns the activeSessions
@@ -79,17 +76,16 @@ var SessionApp = (function() {
    */
 
   function retrieveSessions() {
-
     var deferred = Q.defer();
 
     try {
-
-      chrome.storage.local.get(['data','closedSessions'], function(items) {
-        activeSessions = items.data? JSON.parse(items.data) : {};
-        closedSessions = items.closedSessions ? JSON.parse(items.closedSessions) :  [];
+      chrome.storage.local.get(["data", "closedSessions"], function (items) {
+        activeSessions = items.data ? JSON.parse(items.data) : {};
+        closedSessions = items.closedSessions
+          ? JSON.parse(items.closedSessions)
+          : [];
         deferred.resolve(activeSessions);
       });
-
     } catch (e) {
       deferred.reject(e.message);
     }
@@ -172,7 +168,6 @@ var SessionApp = (function() {
 
   // Public Methods
   return {
-
     getChunkedTimeStamp: getChunkedTimeStamp,
 
     /**
@@ -199,7 +194,7 @@ var SessionApp = (function() {
     //     });
     //   });
     // },
-    
+
     // retrieveActiveSession: async function(deviceId, userId) {
     //   return new Promise((resolve, reject) => {
     //
@@ -215,7 +210,7 @@ var SessionApp = (function() {
     //     });
     //   });
     // },
-    
+
     // append endTime, duration, get closed sessions from local storage (check for exist) if exist, parse, append this session, stringify,
     // store else save as arr with 1 el of this session
     // for stale sessions ^ will overwrite
@@ -241,7 +236,7 @@ var SessionApp = (function() {
     //   // store else save as arr with 1 el of this session
     //   // for stale sessions ^ will overwrite
     // },
-    
+
     // startSession: async function(userInfo, deviceId) {
     //
     //   let data = JSON.stringify({
@@ -258,7 +253,7 @@ var SessionApp = (function() {
     //   console.log('started', data);
     //   return data;
     // },
-  
+
     /**
      * Checks a session to see if it has been active within the last activity window. If yes, returns true. If no, closes session and returns false;
      * @param session
@@ -328,69 +323,77 @@ var SessionApp = (function() {
      * Gets the private IP address, and passes it as an argument to the specified callback function
      */
 
-    getPrivateIP: function() {
+    getPrivateIP: function () {
       // console.log('getPrivateIp');
       var deferred = Q.defer();
 
-      var backStop = Q.promise(function(resolve, reject) {
-        setTimeout(function() {
-          return resolve('unknown');
+      var backStop = Q.promise(function (resolve, reject) {
+        setTimeout(function () {
+          return resolve("unknown");
         }, 15000);
       });
 
-      Q.race([backStop, function() {
+      Q.race([
+        backStop,
+        (function () {
+          var ipPromise = Q.defer();
 
-        var ipPromise = Q.defer();
+          var ips = [];
 
-        var ips = [];
+          var RTCPeerConnection =
+            window.RTCPeerConnection ||
+            window.webkitRTCPeerConnection ||
+            window.mozRTCPeerConnection;
 
-        var RTCPeerConnection = window.RTCPeerConnection ||
-          window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+          var pc = new RTCPeerConnection({
+            // Don't specify any stun/turn servers, otherwise you will
+            // also find your public IP addresses.
+            iceServers: [],
+          });
 
-        var pc = new RTCPeerConnection({
-          // Don't specify any stun/turn servers, otherwise you will
-          // also find your public IP addresses.
-          iceServers: []
-        });
+          // Add a media line, this is needed to activate candidate gathering.
+          pc.createDataChannel("");
 
-        // Add a media line, this is needed to activate candidate gathering.
-        pc.createDataChannel('');
-
-        // onicecandidate is triggered whenever a candidate has been found.
-        pc.onicecandidate = function (e) {
-          if (!e.candidate) { // Candidate gathering completed.
-            pc.close();
-            if (!ips.length) return;
-            if (appConfig.debugConsole) {
-              // console.log('LOCAL IPs : ' + ips.join('|'));
+          // onicecandidate is triggered whenever a candidate has been found.
+          pc.onicecandidate = function (e) {
+            if (!e.candidate) {
+              // Candidate gathering completed.
+              pc.close();
+              if (!ips.length) return;
+              if (appConfig.debugConsole) {
+                // console.log('LOCAL IPs : ' + ips.join('|'));
+              }
+              vars.privateIp = ips.join("|");
+              ipPromise.resolve(vars.privateIp);
+              return;
             }
-            vars.privateIp = ips.join('|');
-            ipPromise.resolve(vars.privateIp);
-            return;
-          }
 
-          var ip = /^candidate:.+ (\S+) \d+ typ/.exec(e.candidate.candidate)[1];
+            var ip = /^candidate:.+ (\S+) \d+ typ/.exec(
+              e.candidate.candidate
+            )[1];
 
-          if (ip.indexOf('100.115.92.') === -1 && ips.indexOf(ip) === -1) {
-            // avoid duplicate entries (tcp/udp)
-            ips.push(ip);
-          }
+            if (ip.indexOf("100.115.92.") === -1 && ips.indexOf(ip) === -1) {
+              // avoid duplicate entries (tcp/udp)
+              ips.push(ip);
+            }
+          };
 
-        };
+          pc.createOffer(
+            function (sdp) {
+              pc.setLocalDescription(sdp);
+            },
+            function onerror(e) {
+              console.error(e);
+              if (!vars.privateIp) {
+                vars.privateIp = "unknown";
+              }
+              ipPromise.resolve(vars.privateIp);
+            }
+          );
 
-        pc.createOffer(function (sdp) {
-          pc.setLocalDescription(sdp);
-        }, function onerror(e) {
-          console.error(e);
-          if (!vars.privateIp) {
-            vars.privateIp = 'unknown';
-          }
-          ipPromise.resolve(vars.privateIp);
-        });
-
-        return ipPromise.promise;
-
-      }()]).then(function(result) {
+          return ipPromise.promise;
+        })(),
+      ]).then(function (result) {
         deferred.resolve(result);
       });
 
@@ -401,89 +404,105 @@ var SessionApp = (function() {
      * Gets the public IP address, and passes it as an argument to the specified callback function
      */
 
-    getPublicIP: function() {
+    getPublicIP: function () {
       // console.log('getPublicIp');
       var deferred = Q.defer();
-  
+
       // We know with certainty that this is an offline session if the navigator is not online.
       if (!window.navigator.onLine) {
-        deferred.resolve('offline');
+        deferred.resolve("offline");
       } else {
-        var backStop = Q.promise(function(resolve, reject) {
-          setTimeout(function() {
-            return resolve('unknown'); // If not able to detect public IP within 15 seconds, report as unkown.
+        var backStop = Q.promise(function (resolve, reject) {
+          setTimeout(function () {
+            return resolve("unknown"); // If not able to detect public IP within 15 seconds, report as unkown.
           }, 15000);
         });
-        Q.race([backStop, function() {
-  
-          var ipPromise = Q.defer();
-          
-          // Only gets public IP, not private
-          var req = new XMLHttpRequest();
-  
-          var ipRequestUrl = appConfig.api.baseUrl + appConfig.api.version + appConfig.api.publicIp;
-  
-          var requestUrl = ipRequestUrl + '?apiToken=' + appConfig.api.token + '&d=' + vars.deviceId;
-  
-          req.open('GET', requestUrl, true);
-  
-          req.onerror = function(rtn) {
-            console.warn('getPublicIp onerror',rtn);
-            onRequestError('getPublicIp', vars.domain + ' ' + JSON.stringify(rtn, ['message', 'arguments', 'type', 'name']));
-            ipPromise.resolve('unknown');
-          };
-  
-          req.onload = function() {
-            // console.log(responseObject);
-            var responseCode = this.status;
-            if (responseCode === 200) {
-      
-              var responseObject = JSON.parse(this.response);
-              setLocalVars({publicIp: responseObject.ip});
-      
-              if (appConfig.debugConsole) {
-                // console.log('PUBLIC IP : ' + responseObject.ip);
+        Q.race([
+          backStop,
+          (function () {
+            var ipPromise = Q.defer();
+
+            // Only gets public IP, not private
+            var req = new XMLHttpRequest();
+
+            var ipRequestUrl =
+              appConfig.api.baseUrl +
+              appConfig.api.version +
+              appConfig.api.publicIp;
+
+            var requestUrl =
+              ipRequestUrl +
+              "?apiToken=" +
+              appConfig.api.token +
+              "&d=" +
+              vars.deviceId;
+
+            req.open("GET", requestUrl, true);
+
+            req.onerror = function (rtn) {
+              console.warn("getPublicIp onerror", rtn);
+              onRequestError(
+                "getPublicIp",
+                vars.domain +
+                  " " +
+                  JSON.stringify(rtn, ["message", "arguments", "type", "name"])
+              );
+              ipPromise.resolve("unknown");
+            };
+
+            req.onload = function () {
+              // console.log(responseObject);
+              var responseCode = this.status;
+              if (responseCode === 200) {
+                var responseObject = JSON.parse(this.response);
+                setLocalVars({ publicIp: responseObject.ip });
+
+                if (appConfig.debugConsole) {
+                  // console.log('PUBLIC IP : ' + responseObject.ip);
+                }
+                ipPromise.resolve(responseObject.ip);
+              } else {
+                if (appConfig.debugAnalytics) {
+                  Analytics.sendEvent({
+                    category: "Request Error",
+                    action: "Public IP Request API Error",
+                    label: this.response,
+                    value: responseCode,
+                    domain: vars.domain,
+                    licenseTier: vars.licenseTier,
+                  });
+                }
+
+                ipPromise.resolve("unknown");
               }
-              ipPromise.resolve(responseObject.ip);
-      
-            } else {
-      
+            };
+
+            try {
+              req.send();
+            } catch (e) {
               if (appConfig.debugAnalytics) {
-                Analytics.sendEvent({category: 'Request Error', action: 'Public IP Request API Error', label: this.response, value: responseCode, domain: vars.domain, licenseTier: vars.licenseTier});
+                Analytics.sendEvent({
+                  category: "Request Error",
+                  action: "Public IP Request API Error",
+                  label: JSON.stringify(e),
+                  domain: vars.domain,
+                  licenseTier: vars.licenseTier,
+                });
               }
-      
-              ipPromise.resolve('unknown');
-      
+              ipPromise.resolve("unknown");
             }
-    
-          };
-  
-          try {
-            req.send();
-          } catch (e) {
-            if (appConfig.debugAnalytics) {
-              Analytics.sendEvent({
-                category: 'Request Error',
-                action: 'Public IP Request API Error',
-                label: JSON.stringify(e),
-                domain: vars.domain,
-                licenseTier: vars.licenseTier
-              });
-            }
-            ipPromise.resolve('unknown');
-          }
-          
-          return ipPromise.promise;
-          
-        }()]).then(function(result) {
+
+            return ipPromise.promise;
+          })(),
+        ]).then(function (result) {
           // console.log('resolving public IP', result);
           deferred.resolve(result);
-        })
+        });
       }
-      
+
       return deferred.promise;
     },
-    
+
     /**
      * Drop relevant sessions from storage
      *
@@ -509,7 +528,5 @@ var SessionApp = (function() {
     //   return deferred.promise;
     //
     // }
-
   };
-
 })();
